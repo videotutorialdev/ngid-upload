@@ -1,0 +1,44 @@
+<div class="d-flex justify-content-between">
+    <input type="file" (change)="handleChange($event)" multiple>
+    <div>
+        <ng-content select=".button-upload-header"></ng-content>
+        <button class="btn btn-primary btn-sm" (click)="handleUpload()">Upload</button>
+    </div>
+</div>
+<ul class="list-group my-4">
+    <li class="list-group-item" *ngFor="let uploadFile of upload.uploadFileList; let i = index">
+        {{ uploadFile.file.name }}
+        <span class="badge" [ngClass]="uploadStatusClassObject[uploadFile.status]">{{ uploadFile.status }}</span>
+        <div style="float: right;">
+            <div class="d-inline-block" *ngIf="uploadFile.status === 'INVALID'">
+                <i class="far fa-folder-open mr-2 text-primary" (click)="inputChangeUpload.click()" style="cursor: pointer;"></i>
+                <input #inputChangeUpload type="file" hidden (change)="handleChangeUpload($event, i)">
+            </div>
+            <i class="fas fa-redo-alt text-primary mr-2"
+            (click)="handleReUpload(uploadFile, i)"
+            *ngIf="uploadFile.status === 'FAILED'" 
+            style="cursor: pointer;"></i>
+        <i class="fas fa-trash text-danger" 
+           style="cursor: pointer;" 
+           *ngIf="uploadFile.status !== 'ONPROGRESS' && uploadFile.status !== 'DELETED'"
+           (click)="upload.deleteUploadFile(uploadFile)"></i>
+        </div>
+
+        <button class="btn btn-danger btn-sm" 
+            style="float: right;"
+            *ngIf="uploadFile.status === 'ONPROGRESS'"
+            (click)="handleCancelUpload(i)"
+        >Stop</button>
+        <div class="progress my-4" *ngIf="uploadFile.status === 'ONPROGRESS'">
+            <div class="progress-bar" 
+                 role="progressbar" 
+                 [ngStyle]="{'width': uploadFile.progress + '%'}" 
+                 aria-valuenow="{{ uploadFile.progress }}" 
+                 aria-valuemin="0" 
+                 aria-valuemax="100"></div>
+        </div>
+        <small class="text-danger d-block" *ngIf="uploadFile.status === 'INVALID'">
+            {{ uploadFile.error.message }}
+        </small>
+    </li>
+</ul>
